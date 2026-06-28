@@ -1,0 +1,9 @@
+node_modules/
+.env
+*.log
+.DS_Store
+*.traineddata
+repuve_test.html
+test_*.png
+test_*.svg
+data/consultas.json

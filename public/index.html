@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f3d3e">
+  <meta name="description" content="Verifica tu vehiculo sin llevarlo. Reporte de robo, infracciones, tenencia y mas. Servicio a domicilio en CDMX y Estado de Mexico.">
+  <title>GIV — Verificacion Vehicular sin Llevar tu Auto</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg-primary: #0f3d3e;
+      --bg-secondary: #1a4a4b;
+      --bg-card: #ffffff;
+      --bg-input: #f8fafb;
+      --accent: #00d4d4;
+      --accent-hover: #00b8b8;
+      --accent-green: #a3e635;
+      --accent-red: #ef4444;
+      --accent-yellow: #f59e0b;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border: #e2e8f0;
+      --shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #f8fafb;
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    
+    h1, h2, h3, h4 {
+      font-family: 'Manrope', sans-serif;
+    }
+    
+    /* Header */
+    header {
+      background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+      padding: 1rem 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .header-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+    
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      background: var(--accent);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--bg-primary);
+      font-family: 'Manrope', sans-serif;
+    }
+    
+    .logo-text {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #fff;
+      font-family: 'Manrope', sans-serif;
+    }
+    
+    .logo-text span { color: var(--accent); }
+    
+    .badge {
+      background: var(--accent-green);
+      color: var(--bg-primary);
+      font-size: .7rem;
+      padding: .25rem .6rem;
+      border-radius: 20px;
+      font-weight: 700;
+    }
+    
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 4rem 1.5rem 4rem;
+      text-align: center;
+      color: #fff;
+    }
+    
+    .hero-inner {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    
+    .hero h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+    
+    .hero h1 span { color: var(--accent); }
+    
+    .hero p {
+      font-size: 1.15rem;
+      color: rgba(255,255,255,0.8);
+      margin: 0 auto 2rem;
+    }
+    
+    .highlight {
+      color: var(--accent-green);
+      font-weight: 700;
+    }
+    
+    /* Search Box */
+    .search-container {
+      max-width: 520px;
+      margin: 0 auto 1.5rem;
+    }
+    
+    .search-box {
+      display: flex;
+      gap: .5rem;
+      background: #fff;
+      border-radius: 12px;
+      padding: .4rem;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    }
+    
+    .search-box input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 1.1rem;
+      padding: .75rem 1rem;
+      font-family: 'Inter', sans-serif;
+      text-transform: uppercase;
+      outline: none;
+    }
+    
+    .search-box input::placeholder {
+      color: var(--text-muted);
+      text-transform: none;
+    }
+    
+    .search-box button {
+      background: var(--accent);
+      color: var(--bg-primary);
+      border: none;
+      padding: .75rem 1.8rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .2s;
+      white-space: nowrap;
+      font-family: 'Manrope', sans-serif;
+    }
+    
+    .search-box button:hover { background: var(--accent-hover); }
+    .search-box button:disabled { opacity: .5; cursor: not-allowed; }
+    
+    .scan-btn {
+      background: transparent;
+      color: var(--accent);
+      border: 2px solid var(--accent);
+      padding: .75rem 1rem;
+      border-radius: 8px;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      white-space: nowrap;
+      font-family: 'Manrope', sans-serif;
+    }
+    
+    .scan-btn:hover { background: rgba(0,212,212,.15); }
+    .scan-btn:disabled { opacity: .5; cursor: not-allowed; }
+    
+    .scan-btn .icon { font-size: 1.1rem; }
+    
+    .ocr-preview {
+      display: none;
+      margin-top: 1rem;
+      text-align: center;
+    }
+    
+    .ocr-preview.active { display: block; }
+    
+    .ocr-preview img {
+      max-width: 280px;
+      max-height: 180px;
+      border-radius: 8px;
+      border: 2px solid var(--accent);
+      box-shadow: 0 4px 15px rgba(0,212,212,.2);
+    }
+    
+    .ocr-status {
+      margin-top: .5rem;
+      font-size: .85rem;
+      color: rgba(255,255,255,0.7);
+    }
+    
+    .ocr-fields {
+      display: none;
+      margin-top: 1rem;
+      background: rgba(255,255,255,.08);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: left;
+    }
+    
+    .ocr-fields.active { display: block; }
+    
+    .ocr-fields h4 {
+      color: var(--accent);
+      font-size: .9rem;
+      margin-bottom: .5rem;
+    }
+    
+    .ocr-field-row {
+      display: flex;
+      justify-content: space-between;
+      padding: .3rem 0;
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      font-size: .85rem;
+    }
+    
+    .ocr-field-row label { color: rgba(255,255,255,.6); }
+    .ocr-field-row value { color: #fff; font-weight: 600; }
+    
+    .search-hint {
+      margin-top: .6rem;
+      font-size: .85rem;
+      color: rgba(255,255,255,0.6);
+      text-align: left;
+    }
+    
+    /* Results */
+    .results {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.5rem 2rem;
+      display: none;
+    }
+    
+    .results.active { display: block; }
+    
+    .result-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+    
+    .result-section h2 {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-family: 'Manrope', sans-serif;
+    }
+    
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .35rem .8rem;
+      border-radius: 20px;
+      font-size: .85rem;
+      font-weight: 600;
+    }
+    
+    .status-badge.clean { background: rgba(163,230,53,.15); color: #4d7c0f; }
+    .status-badge.alert { background: rgba(239,68,68,.15); color: var(--accent-red); }
+    .status-badge.warning { background: rgba(245,158,11,.15); color: #b45309; }
+    .status-badge.info { background: rgba(0,212,212,.15); color: #0f766e; }
+    
+    .data-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .data-item {
+      background: var(--bg-input);
+      padding: .8rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    
+    .data-item label {
+      display: block;
+      font-size: .75rem;
+      color: var(--text-muted);
+      margin-bottom: .25rem;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    
+    .data-item value {
+      display: block;
+      font-size: .95rem;
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    
+    /* Quote */
+    .quote {
+      background: linear-gradient(135deg, rgba(0,212,212,.05), rgba(163,230,53,.05));
+      border: 2px solid var(--accent);
+      border-radius: 12px;
+      padding: 1.8rem;
+      margin-top: 1.5rem;
+    }
+    
+    .quote h3 {
+      font-size: 1.2rem;
+      margin-bottom: .5rem;
+      color: var(--bg-primary);
+      font-family: 'Manrope', sans-serif;
+    }
+    
+    .quote .total {
+      font-size: 2.2rem;
+      font-weight: 800;
+      font-family: 'Manrope', sans-serif;
+      margin: .8rem 0;
+      color: var(--bg-primary);
+    }
+    
+    .quote .desglose {
+      font-size: .9rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+    
+    .quote .desglose p {
+      padding: .2rem 0;
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .btn-action {
+      display: inline-block;
+      background: var(--accent-green);
+      color: var(--bg-primary);
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      font-weight: 700;
+      text-decoration: none;
+      margin-top: 1rem;
+      transition: opacity .2s;
+      border: none;
+      cursor: pointer;
+      font-size: 1.05rem;
+      font-family: 'Manrope', sans-serif;
+    }
+    
+    .btn-action:hover { opacity: .9; }
+    
+    /* Services */
+    .services {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+    }
+    
+    .services h2 {
+      font-size: 1.8rem;
+      margin-bottom:.5rem;
+      font-family: 'Manrope', sans-serif;
+    }
+    
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    
+    .service-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.8rem;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: var(--shadow);
+    }
+    
+    .service-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    }
+    
+    .service-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .service-icon.teal { background: rgba(0,212,212,.15); color: var(--accent); }
+    .service-icon.green { background: rgba(163,230,53,.15); color: #4d7c0f; }
+    .service-icon.yellow { background: rgba(245,158,11,.15); color: #b45309; }
+    .service-icon.red { background: rgba(239,68,68,.15); color: var(--accent-red); }
+    
+    .service-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: .5rem;
+      font-family: 'Manrope', sans-serif;
+    }
+    
+    .service-card p {
+      color: var(--text-secondary);
+      font-size: .9rem;
+    }
+    
+    /* How it works */
+    .how-it-works {
+      background: var(--bg-primary);
+      padding: 4rem 1.5rem;
+      color: #fff;
+    }
+    
+    .how-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    
+    .how-inner h2 {
+      font-size: 1.8rem;
+      margin-bottom: .5rem;
+      font-family: 'Manrope', sans-serif;
+    }
+    
+    .how-inner > p {
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 2rem;
+    }
+    
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 2rem;
+    }
+    
+    .step {
+      text-align: center;
+    }
+    
+    .step-number {
+      width: 52px;
+      height: 52px;
+      background: var(--accent);
+      color: var(--bg-primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin: 0 auto 1rem;
+      font-family: 'Manrope', sans-serif;
+    }
+    
+    .step h3 { font-size: 1.1rem; margin-bottom: .5rem; font-family: 'Manrope', sans-serif; }
+    .step p { font-size: .9rem; color: rgba(255,255,255,0.7); }
+    
+    /* Install prompt */
+    .install-prompt {
+      background: linear-gradient(135deg, rgba(0,212,212,.1), rgba(163,230,53,.1));
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      padding: 1.8rem;
+      text-align: center;
+      margin-top: 2rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .install-prompt h3 { margin-bottom: .5rem; font-family: 'Manrope', sans-serif; color: #fff; }
+    .install-prompt p { color: rgba(255,255,255,0.7); font-size: .9rem; margin-bottom: 1rem; }
+    
+    .btn-install {
+      background: var(--accent);
+      color: var(--bg-primary);
+      padding: .8rem 1.8rem;
+      border-radius: 8px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-family: 'Manrope', sans-serif;
+    }
+    
+    /* Chatbot Widget */
+    .chat-widget {
+      position: fixed; bottom: 24px; right: 24px; z-index: 1000;
+    }
+    .chat-btn {
+      width: 60px; height: 60px; border-radius: 50%; background: var(--accent);
+      border: none; color: var(--bg-primary); font-size: 1.5rem; cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0,212,212,.4); transition: transform .2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .chat-btn:hover { transform: scale(1.1); }
+    .chat-box {
+      display: none; position: absolute; bottom: 75px; right: 0;
+      width: 360px; max-height: 500px; background: #fff; border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(0,0,0,.2); flex-direction: column; overflow: hidden;
+    }
+    .chat-box.active { display: flex; }
+    .chat-header {
+      background: var(--bg-primary); color: #fff; padding: 1rem;
+      font-family: 'Manrope', sans-serif; font-weight: 700; font-size: .95rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .chat-header button { background: none; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; }
+    .chat-messages {
+      flex: 1; padding: 1rem; max-height: 300px; overflow-y: auto;
+      display: flex; flex-direction: column; gap: .8rem;
+    }
+    .msg { max-width: 80%; padding: .6rem 1rem; border-radius: 12px; font-size: .85rem; line-height: 1.4; white-space: pre-line; }
+    .msg.bot { background: #f1f5f9; color: #1e293b; align-self: flex-start; }
+    .msg.user { background: var(--bg-primary); color: #fff; align-self: flex-end; }
+    .chat-input {
+      display: flex; padding: .8rem; border-top: 1px solid #e2e8f0; gap: .5rem;
+    }
+    .chat-input input {
+      flex: 1; padding: .5rem .8rem; border: 2px solid #e2e8f0; border-radius: 8px;
+      font-size: .85rem; outline: none; font-family: 'Inter', sans-serif;
+    }
+    .chat-input input:focus { border-color: var(--accent); }
+    .chat-input button {
+      background: var(--accent); color: var(--bg-primary); border: none;
+      padding: .5rem 1rem; border-radius: 8px; font-weight: 700; cursor: pointer;
+    }
+    .sugerencias { display: flex; flex-wrap: wrap; gap: .4rem; padding: 0 1rem .8rem; }
+    .sugerencias button {
+      background: rgba(0,212,212,.1); border: 1px solid rgba(0,212,212,.3);
+      padding: .3rem .7rem; border-radius: 20px; font-size: .75rem; cursor: pointer;
+      color: var(--bg-primary); font-weight: 500;
+    }
+    .sugerencias button:hover { background: rgba(0,212,212,.2); }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: .85rem;
+      border-top: 1px solid var(--border);
+      background: #fff;
+    }
+    
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    
+    /* Loading */
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+      color: rgba(255,255,255,0.8);
+    }
+    
+    .loading.active { display: block; }
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255,255,255,0.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+    
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    /* Responsive */
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 2rem; }
+      .search-box { flex-direction: column; }
+      .search-box button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-content">
+    <div class="logo">
+      <div class="logo-icon">GIV</div>
+      <div class="logo-text"><span>GIV</span> Gestión Vehicular</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:.5rem;">
+      <span class="badge">EN VIVO</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-inner">
+      <h1>Verifica tu auto<br><span>sin llevarlo</span></h1>
+      <p>Consulta <span class="highlight">REPUVE</span>, infracciones, tenencia y el estado legal de tu vehiculo en segundos. Servicio a domicilio en CDMX y Estado de Mexico.</p>
+      
+      <div class="search-container">
+        <form id="searchForm" class="search-box">
+          <input type="text" id="placaInput" placeholder="Ej: ABC-1234 o ABC1234" maxlength="10" autocomplete="off">
+          <button type="submit" id="searchBtn">Verificar</button>
+        </form>
+        <div class="search-hint">Ingresa la placa de tu vehiculo (sin espacios) o</div>
+        <div style="margin-top:.8rem;text-align:center;">
+          <button type="button" id="scanBtn" class="scan-btn" onclick="abrirOCR()">
+            <span class="icon">📷</span> Escanear tarjeta de circulacion
+          </button>
+          <input type="file" id="ocrInput" accept="image/*" capture="environment" style="display:none" onchange="procesarOCR(event)">
+        </div>
+        <!-- Preview y resultados OCR -->
+        <div id="ocrPreview" class="ocr-preview">
+          <img id="ocrImg" src="" alt="Tarjeta">
+          <div id="ocrStatus" class="ocr-status"></div>
+        </div>
+        <div id="ocrFields" class="ocr-fields"></div>
+      </div>
+      
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Consultando REPUVE y Finanzas CDMX...</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="results" class="results"></section>
+
+  <section class="services">
+    <h2>Lo que verificamos por ti</h2>
+    <p style="color:var(--text-secondary)">Todo el proceso sin que muevas tu auto del lugar.</p>
+    
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-icon teal">🛡️</div>
+        <h3>Reporte de Robo</h3>
+        <p>Consulta en tiempo real el estatus legal de tu vehiculo en el Registro Publico Vehicular (REPUVE).</p>
+      </div>
+      
+      <div class="service-card">
+        <div class="service-icon yellow">📋</div>
+        <h3>Infracciones de Transito</h3>
+        <p>Verificamos multas pendientes, fotocivicas y sanciones asociadas a tu placa.</p>
+      </div>
+      
+      <div class="service-card">
+        <div class="service-icon green">💰</div>
+        <h3>Tenencia y Adeudos</h3>
+        <p>Verificamos si tu vehiculo tiene adeudos de tenencia o pagos pendientes.</p>
+      </div>
+      
+      <div class="service-card">
+        <div class="service-icon teal">🚗</div>
+        <h3>Datos del Vehiculo</h3>
+        <p>Obten marca, modelo, ano, NIV y entidad de registro de cualquier vehiculo.</p>
+      </div>
+      
+      <div class="service-card">
+        <div class="service-icon green">📄</div>
+        <h3>Verificacion a Domicilio</h3>
+        <p>Proceso completo de verificacion vehicular sin que lleves tu auto al centro.</p>
+      </div>
+      
+      <div class="service-card">
+        <div class="service-icon yellow">⚡</div>
+        <h3>Resultado en Segundos</h3>
+        <p>Recibes tu reporte completo + cotizacion automatica en menos de 30 segundos.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="how-it-works">
+    <div class="how-inner">
+      <h2>Como funciona</h2>
+      <p>Tres simples pasos y listo.</p>
+      
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3>Da tu placa</h3>
+          <p>Ingresa el numero de placa de tu vehiculo. No necesitas el NIV.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3>Consultamos</h3>
+          <p>Verificamos en REPUVE, Finanzas CDMX y registros oficiales al instante.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3>Recibe tu reporte</h3>
+          <p>Te damos resultado completo + cotizacion. Pagas y nosotros hacemos todo.</p>
+        </div>
+      </div>
+      
+      <div class="install-prompt">
+        <h3>💡 Instala la app en tu celular</h3>
+        <p>Guarda GIV en tu pantalla de inicio para consultar placas rapido cuando la necesites.</p>
+        <button id="installBtn" class="btn-install" onclick="installPWA()">
+          Agregar a pantalla de inicio
+        </button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p><strong>GIV</strong> — Gestion Integral Vehicular</p>
+  <p style="margin-top:.5rem;font-size:.8rem;">Consultas 100% oficiales. Datos obtenidos de REPUVE y Finanzas CDMX.</p>
+  <p style="margin-top:.5rem;font-size:.8rem;">Contacto: <a href="https://wa.me/5215660951415">WhatsApp</a> | CDMX y Estado de Mexico</p>
+</footer>
+
+<script>
+  const searchForm = document.getElementById('searchForm');
+  const placaInput = document.getElementById('placaInput');
+  const searchBtn = document.getElementById('searchBtn');
+  const loading = document.getElementById('loading');
+  const results = document.getElementById('results');
+  
+  searchForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const placa = placaInput.value.trim();
+    
+    if (placa.length < 3) {
+      alert('Ingresa una placa valida (minimo 3 caracteres)');
+      return;
+    }
+    
+    // Mostrar loading
+    results.classList.remove('active');
+    loading.classList.add('active');
+    searchBtn.disabled = true;
+    
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000);
+      
+      const resp = await fetch('/api/verificacion-completa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ placa: placa }),
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeout);
+      
+      const data = await resp.json();
+      mostrarResultados(data);
+      
+    } catch (error) {
+      console.error('ERROR:', error);
+      if (error.name === 'AbortError') {
+        mostrarError('La consulta tardo demasiado. Verifica tu conexion e intenta de nuevo.');
+      } else {
+        mostrarError(error.message);
+      }
+    } finally {
+      loading.classList.remove('active');
+      searchBtn.disabled = false;
+    }
+  });
+  
+  function mostrarResultados(data) {
+    let html = '';
+
+    // ==========================================
+    // BLOQUE 1: TUS RESULTADOS (GRATIS)
+    // ==========================================
+    html += `<div style="margin-bottom:.5rem;"><span class="badge" style="background:var(--accent-green);color:var(--bg-primary);">RESULTADOS GRATIS</span></div>`;
+
+    // REPUVE
+    const repuve = data.repuve;
+    const roboStatus = repuve.estatusRobo;
+    const roboClass = roboStatus === 'SIN REPORTE' ? 'clean' : 
+      (roboStatus === 'CON REPORTE DE ROBO' ? 'alert' : (roboStatus === 'SERVICIO_DISPONIBLE' ? 'info' : 'warning'));
+    const sinDatosRepuve = (roboStatus === 'SERVICIO_DISPONIBLE' || !repuve.datos);
+    
+    html += `<section class="result-section">
+      <h2>🛡️ REPUVE - <span class="status-badge ${roboClass}">${roboStatus.replace(/_/g, ' ')}</span></h2>
+    `;
+    
+    // Si hay datos del vehiculo, mostrar TODOS
+    if (repuve.datos && roboStatus !== 'SERVICIO_DISPONIBLE' && roboStatus !== 'SERVICIO_NO_DISPONIBLE') {
+      html += `<div class="data-grid">`;
+      const campos = [
+        ['marca', 'Marca'], ['modelo', 'Modelo'], ['anio', 'Año'], ['niv', 'NIV'],
+        ['clase', 'Clase'], ['tipo', 'Tipo'], ['placa', 'Placas'], ['entidad', 'Entidad'],
+        ['puertas', 'Puertas'], ['pais_origen', 'Pais de origen'], ['version', 'Vision'],
+        ['cilindros', 'Cilindros'], ['desplazamiento', 'Desplazamiento'],
+        ['planta_ensamble', 'Planta de ensamble'],
+        ['institucion', 'Institucion inscripcion'], ['fecha_inscripcion', 'fecha inscripcion'],
+        ['fecha_emplacado', 'fecha emplacado'], ['fecha_actualizacion', 'ultima actualizacion'],
+        ['folio_constancia', 'Folio']
+      ];
+      for (const [key, label] of campos) {
+        if (repuve.datos[key]) {
+          html += `<div class="data-item"><label>${label}</label><value>${repuve.datos[key]}</value></div>`;
+        }
+      }
+      html += '</div>';
+      if (repuve.datos.observaciones) {
+        html += `<p style="margin-top:.8rem;padding:.5rem 1rem;background:rgba(163,230,53,.1);border-radius:8px;color:#4d7c0f;font-size:.85rem;">${repuve.datos.observaciones}</p>`;
+      }
+      if (repuve.datos.raw_complementarios) {
+        html += `<p style="margin-top:.4rem;color:var(--text-muted);font-size:.75rem;font-style:italic;">${repuve.datos.raw_complementarios}</p>`;
+      }
+    } 
+    // Sin datos del servidor (bloqueado en movil, pero en VPS anda bien)
+    else if (sinDatosRepuve) {
+      html += `<div style="padding:1.2rem;background:rgba(245,158,11,.08);border-radius:8px;border:1px solid rgba(245,158,11,.3);margin-top:.6rem;">`;
+      html += `<p style="color:#b45309;font-weight:700;margin-bottom:.5rem;font-size:.9rem;">🟡 No pudimos descargar tu ficha REPUVE ahora</p>`;
+      html += `<p style="color:var(--text-secondary);font-size:.85rem;line-height:1.5;">Esto ocurre porque el gobierno limita las consultas desde redes moviles. Tu servicio de verificacion incluye la consulta completa: nosotros traemos tu reporte de robo oficial y datos del vehiculo cuando procesamos tu tramite.</p>`;
+      html += `<p style="margin-top:.6rem;font-size:.85rem;color:var(--text-secondary);">Quieres reserver tu servicio ahora? Te cotizamos segun lo que sabes tu:</p>`;
+      html += `<div style="display:flex;gap:.5rem;margin-top:.6rem;">`;
+      html += `<button class="btn-action" onclick="solicitarServicio()" style="font-size:.9rem;padding:.7rem 1.2rem;">Reservar servicio ahora →</button>`;
+      html += `</div></div>`;
+    } else {
+      html += `<p style="color:var(--text-muted);font-size:.85rem;margin-top:.5rem;">Sin datos disponibles.</p>`;
+    }
+    
+    html += '</section>';
+    
+    // ADEUDOS CDMX
+    const adeudos = data.adeudos;
+    const adeudosClass = adeudos.tieneAdeudos ? 'warning' : 'clean';
+    
+    html += `<section class="result-section">
+      <h2>💰 Finanzas CDMX - <span class="status-badge ${adeudosClass}">${adeudos.tieneAdeudos ? 'CON ADEUDOS' : 'SIN ADEUDOS'}</span></h2>
+    `;
+    
+    if (adeudos.tieneAdeudos) {
+      const adeudosTotal = adeudos.adeudos?.total || adeudos.totalAdeudos || 0;
+      html += `<p style="color:#b45309;margin-top:.8rem;font-weight:700;font-size:1.1rem;">💳 $${adeudosTotal.toFixed(2)} MXN en adeudos</p>`;
+      if (adeudos.adeudos?.infracciones?.length > 0) {
+        html += `<p style="color:var(--text-secondary);font-size:.85rem;margin-top:.3rem;">${adeudos.adeudos.infracciones.length} infraccion(es)</p>`;
+      }
+      if (adeudos.adeudos?.tenencia?.length > 0) {
+        html += `<p style="color:var(--text-secondary);font-size:.85rem;margin-top:.3rem;">${adeudos.adeudos.tenencia.length} tenencia(s) pendiente(s)</p>`;
+      }
+    } else if (adeudos.error) {
+      html += `<p style="color:var(--text-muted);font-size:.85rem;margin-top:.5rem;">⚠️ Portal de adeudos temporalmente no disponible</p>`;
+    } else {
+      html += `<p style="color:#4d7c0f;margin-top:.5rem;font-size:.9rem;">Sin adeudos pendientes registrados</p>`;
+    }
+    
+    html += '</section>';
+
+    // ==========================================
+    // BLOQUE 2: COTIZACION SERVICIO GIV (OPCIONAL)
+    // ==========================================
+    const cot = data.cotizacion;
+
+    if (cot && cot.verificable && cot.cotizacion_servicio) {
+      const cs = cot.cotizacion_servicio;
+      html += `<section class="result-section quote">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem;">
+          <span class="badge" style="background:rgba(0,212,212,.2);color:var(--bg-primary);font-size:.7rem;">SERVICIO OPCIONAL</span>
+        </div>
+        <h3>🚀 Verificacion a Domicilio — Servicio GIV</h3>
+        ${data.folio ? `<p style="color:var(--text-muted);font-size:.8rem;margin-bottom:.3rem;">Folio: <strong style="font-family:monospace;color:var(--bg-primary);">${data.folio}</strong></p>` : ''}
+        <p style="color:var(--text-secondary);margin:.5rem 0;font-size:.9rem;">${cs.resumen}</p>
+        <div style="background:var(--bg-input);border-radius:8px;padding:1rem;margin:.8rem 0;">
+          <p style="display:flex;justify-content:space-between;padding:.3rem 0;font-size:.9rem;"><span>Servicio GIV (sin llevar auto)</span><span>$${cs.desglose.servicio_verificacion.toFixed(2)}</span></p>
+          ${cs.desglose.adeudos_a_pagar > 0 ? `<p style="display:flex;justify-content:space-between;padding:.3rem 0;font-size:.9rem;color:#b45309;"><span>Adeudos del vehiculo (se pagan)</span><span>$${cs.desglose.adeudos_a_pagar.toFixed(2)}</span></p>` : ''}
+          <hr style="border:none;border-top:2px solid var(--accent);margin:.5rem 0;">
+          <p style="display:flex;justify-content:space-between;font-weight:800;font-size:1.05rem;"><span>Total servicio GIV</span><span>$${cs.desglose.total.toFixed(2)} MXN</span></p>
+        </div>
+        ${cs.nota ? `<p style="font-size:.8rem;color:#b45309;background:rgba(245,158,11,.08);padding:.5rem .8rem;border-radius:6px;margin-bottom:.8rem;">🟡 ${cs.nota}</p>` : ''}
+        <button class="btn-action" onclick="solicitarServicio()">
+          Contratar servicio GIV →
+        </button>
+        <p style="color:var(--text-muted);font-size:.75rem;margin-top:.5rem;text-align:center;">Tus resultados arriba son GRATIS. Este servicio es opcional.</p>
+      </section>`;
+    } else if (cot && !cot.verificable) {
+      html += `<section class="result-section" style="border-color:var(--accent-red);">
+        <h3 style="color:var(--accent-red);">❌ No verificable actualmente</h3>
+        <p style="color:var(--text-secondary);margin-top:.5rem;">${cot.mensaje}</p>
+        <button class="btn-action" style="background:var(--accent);color:var(--bg-primary);" onclick="contactarWhatsApp()">
+          Contactar por WhatsApp
+        </button>
+      </section>`;
+    }
+    
+    results.innerHTML = html;
+    results.classList.add('active');
+    results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  
+  function mostrarError(msg) {
+    results.innerHTML = `<section class="result-section">
+      <h2>❌ Error en la consulta</h2>
+      <p style="color:var(--accent-red);margin:.5rem 0;">${msg}</p>
+      <p style="color:var(--text-muted);font-size:.9rem;">Intenta de nuevo mas tarde o contactanos via WhatsApp.</p>
+      <button class="btn-action" onclick="window.location.reload()">Reintentar</button>
+    </section>`;
+    results.classList.add('active');
+  }
+  
+  function solicitarServicio() {
+    const placa = placaInput.value.trim();
+    const msg = encodeURIComponent(`Hola GIV! Quiero contratar el servicio de verificacion a domicilio para mi vehiculo con placa ${placa}. Vi los resultados en la pagina y me interesa.`);
+    window.open(`https://wa.me/5215660951415?text=${msg}`, '_blank');
+  }
+
+  // ==========================================
+  // OCR — Tarjeta de Circulacion
+  // ==========================================
+  function abrirOCR() {
+    document.getElementById('ocrInput').click();
+  }
+  
+  async function procesarOCR(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const scanBtn = document.getElementById('scanBtn');
+    const ocrPreview = document.getElementById('ocrPreview');
+    const ocrImg = document.getElementById('ocrImg');
+    const ocrStatus = document.getElementById('ocrStatus');
+    const ocrFields = document.getElementById('ocrFields');
+    
+    // Mostrar preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      ocrImg.src = e.target.result;
+      ocrPreview.classList.add('active');
+    };
+    reader.readAsDataURL(file);
+    
+    scanBtn.disabled = true;
+    scanBtn.innerHTML = '<span class="icon">⏳</span> Procesando...';
+    ocrStatus.textContent = 'Enviando imagen al servidor OCR...';
+    ocrStatus.style.display = 'block';
+    
+    // Enviar al servidor
+    const formData = new FormData();
+    formData.append('tarjeta', file);
+    
+    try {
+      const resp = await fetch('/api/ocr', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await resp.json();
+      
+      if (data.success && data.campos) {
+        mostrarCamposOCR(data.campos);
+        
+        // Si detecto placa, pre-llenar el input
+        if (data.campos.placa) {
+          placaInput.value = data.campos.placa;
+          ocrStatus.textContent = `✓ Placa detectada: ${data.campos.placa} — Consultando automaticamente...`;
+          ocrStatus.style.color = 'var(--accent-green)';
+          // Auto-submit despues de 1.5s para que el usuario vea el resultado
+          setTimeout(() => {
+            searchForm.requestSubmit();
+          }, 1500);
+        } else {
+          ocrStatus.textContent = '⚠️ No detectamos la placa. Ingresala manualmente.';
+          ocrStatus.style.color = 'var(--accent-yellow)';
+        }
+      } else {
+        ocrStatus.textContent = `Error: ${data.error || 'No se pudo procesar la imagen'}`;
+        ocrStatus.style.color = 'var(--accent-red)';
+      }
+    } catch (error) {
+      ocrStatus.textContent = `Error de conexion: ${error.message}`;
+      ocrStatus.style.color = 'var(--accent-red)';
+    } finally {
+      scanBtn.disabled = false;
+      scanBtn.innerHTML = '<span class="icon">📷</span> Escanear tarjeta de circulacion';
+    }
+  }
+  
+  function mostrarCamposOCR(campos) {
+    const ocrFields = document.getElementById('ocrFields');
+    const camposTraducidos = {
+      placa: 'Placa',
+      niv: 'NIV',
+      vin: 'VIN',
+      nombre: 'Titular',
+      marca: 'Marca',
+      modelo: 'Modelo',
+      anio: 'Año',
+      cilindros: 'Cilindros',
+      entidad: 'Entidad',
+      puertas: 'Puertas'
+    };
+    
+    let html = '<h4>📋 Datos detectados en la tarjeta</h4>';
+    let hayDatos = false;
+    
+    for (const [key, label] of Object.entries(camposTraducidos)) {
+      if (campos[key]) {
+        hayDatos = true;
+        html += `<div class="ocr-field-row"><label>${label}</label><value>${campos[key]}</value></div>`;
+      }
+    }
+    
+    if (!hayDatos) {
+      html += '<value style="color:rgba(255,255,255,.5);font-size:.8rem;">No se detectaron campos claros. Asegurate de que la imagen sea nitida.</value>';
+    }
+    
+    ocrFields.innerHTML = html;
+    ocrFields.classList.add('active');
+  }
+
+  function contactarWhatsApp() {
+    const placa = placaInput.value.trim();
+    const msg = encodeURIComponent(`Hola GIV! Consulte la placa ${placa} en su pagina y aparece con reporte de robo. Necesito orientacion.`);
+    window.open(`https://wa.me/5215660951415?text=${msg}`, '_blank');
+  }
+  
+  // PWA Install
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+  
+  async function installPWA() {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log('PWA install:', outcome);
+      deferredPrompt = null;
+    } else {
+      alert('Para instalar: menu del navegador (⋮) → "Anadir a pantalla de inicio" o "Instalar app"');
+    }
+  }
+  
+  // Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
+</script>
+
+<!-- Chatbot -->
+<div class="chat-widget" id="chatWidget">
+  <div class="chat-box" id="chatBox">
+    <div class="chat-header">
+      🤖 Asistente GIV
+      <button onclick="toggleChat()">✕</button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg bot">¡Hola! Asistente virtual de GIV 👋<br><br>¿En qué te ayudo?</div>
+    </div>
+    <div class="sugerencias" id="chatSugerencias"></div>
+    <div class="chat-input">
+      <input type="text" id="chatInput" placeholder="Escribe tu pregunta..." onkeydown="if(event.key==='Enter')enviarChat()">
+      <button onclick="enviarChat()">→</button>
+    </div>
+  </div>
+  <button class="chat-btn" onclick="toggleChat()">💬</button>
+</div>
+
+<script>
+// Chatbot Widget
+function toggleChat() {
+  document.getElementById('chatBox').classList.toggle('active');
+  if (document.getElementById('chatBox').classList.contains('active')) {
+    document.getElementById('chatInput').focus();
+    cargarSugerencias();
+  }
+}
+
+async function cargarSugerencias() {
+  try {
+    const resp = await fetch('/api/chat/sugerencias');
+    const data = await resp.json();
+    const cont = document.getElementById('chatSugerencias');
+    cont.innerHTML = '';
+    data.sugerencias.forEach(s => {
+      const btn = document.createElement('button');
+      btn.textContent = s.icono + ' ' + s.texto;
+      btn.onclick = () => enviarMensaje(s.texto);
+      cont.appendChild(btn);
+    });
+  } catch(e) {}
+}
+
+async function enviarChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  enviarMensaje(msg);
+  input.value = '';
+}
+
+async function enviarMensaje(texto) {
+  const messages = document.getElementById('chatMessages');
+  
+  // Mensaje del usuario
+  const userDiv = document.createElement('div');
+  userDiv.className = 'msg user';
+  userDiv.textContent = texto;
+  messages.appendChild(userDiv);
+  
+  // Respuesta del bot
+  try {
+    const resp = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mensaje: texto })
+    });
+    const data = await resp.json();
+    
+    const botDiv = document.createElement('div');
+    botDiv.className = 'msg bot';
+    botDiv.textContent = data.respuesta || 'No entendí. Intenta con otra pregunta.';
+    messages.appendChild(botDiv);
+  } catch(e) {
+    const botDiv = document.createElement('div');
+    botDiv.className = 'msg bot';
+    botDiv.textContent = 'Error de conexión. Intenta de nuevo.';
+    messages.appendChild(botDiv);
+  }
+  
+  messages.scrollTop = messages.scrollHeight;
+}
+</script>
+
+</body>
+</html>

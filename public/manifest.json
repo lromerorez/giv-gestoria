@@ -1,0 +1,18 @@
+{
+  "name": "GIV — Gestion Integral Vehicular",
+  "short_name": "GIV",
+  "description": "Verifica tu vehiculo sin llevarlo. Consulta REPUVE, infracciones, tenencia y mas GRATIS.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f3d3e",
+  "theme_color": "#0f3d3e",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230f3d3e' rx='20' width='100' height='100'/><text x='50' y='68' font-size='35' font-family='sans-serif' font-weight='bold' text-anchor='middle' fill='%2300d4d4'>GIV</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

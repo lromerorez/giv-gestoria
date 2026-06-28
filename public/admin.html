@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f3d3e">
+  <title>GIV — Panel Admin</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #0f3d3e; color: #fff; min-height: 100vh; }
+    h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+    
+    .sidebar {
+      position: fixed; left: 0; top: 0; width: 220px; height: 100vh;
+      background: #0a2a2b; padding: 1.5rem 1rem; border-right: 1px solid rgba(0,212,212,.2);
+    }
+    .sidebar .logo {
+      font-size: 1.4rem; font-weight: 800; color: #00d4d4; margin-bottom: 2rem;
+      font-family: 'Manrope', sans-serif;
+    }
+    .sidebar a {
+      display: block; padding: .7rem 1rem; color: rgba(255,255,255,.7);
+      text-decoration: none; border-radius: 8px; margin-bottom: .3rem;
+      font-size: .9rem; transition: all .2s;
+    }
+    .sidebar a:hover, .sidebar a.active { background: rgba(0,212,212,.15); color: #00d4d4; }
+    
+    .main { margin-left: 220px; padding: 2rem; }
+    
+    .header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 2rem;
+    }
+    .header h1 { font-size: 1.6rem; }
+    
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.2rem; margin-bottom: 2rem; }
+    .card {
+      background: #ffffff; border-radius: 12px; padding: 1.5rem; color: #1e293b;
+      box-shadow: 0 4px 15px rgba(0,0,0,.2);
+    }
+    .card .label { font-size: .8rem; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: .5rem; }
+    .card .valor { font-size: 2rem; font-weight: 800; color: #0f3d3e; font-family: 'Manrope', sans-serif; }
+    .card .sub { font-size: .8rem; color: #94a3b8; margin-top: .3rem; }
+    .card.alert { border-left: 4px solid #ef4444; }
+    .card.alert .valor { color: #ef4444; }
+    .card.green { border-left: 4px solid #a3e635; }
+    .card.green .valor { color: #4d7c0f; }
+    .card.cyan { border-left: 4px solid #00d4d4; }
+    .card.cyan .valor { color: #0f766e; }
+    
+    .section {
+      background: #ffffff; border-radius: 12px; padding: 1.5rem; color: #1e293b;
+      margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,.2);
+    }
+    .section h2 { font-size: 1.1rem; margin-bottom: 1rem; color: #0f3d3e; }
+    
+    table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+    th, td { padding: .6rem .8rem; text-align: left; border-bottom: 1px solid #e2e8f0; }
+    th { color: #64748b; font-weight: 600; font-size: .75rem; text-transform: uppercase; }
+    td { color: #1e293b; }
+    tr:hover td { background: #f8fafb; }
+    
+    .badge { display: inline-block; padding: .2rem .6rem; border-radius: 20px; font-size: .75rem; font-weight: 600; }
+    .badge.rojo { background: rgba(239,68,68,.15); color: #dc2626; }
+    .badge.verde { background: rgba(163,230,53,.2); color: #4d7c0f; }
+    .badge.amarillo { background: rgba(245,158,11,.15); color: #b45309; }
+    .badge.cyan { background: rgba(0,212,212,.15); color: #0f766e; }
+    
+    .search-box { display: flex; gap: .5rem; margin-bottom: 1rem; }
+    .search-box input {
+      flex: 1; padding: .6rem 1rem; border: 2px solid #e2e8f0; border-radius: 8px;
+      font-size: .9rem; outline: none; font-family: 'Inter', sans-serif;
+    }
+    .search-box input:focus { border-color: #00d4d4; }
+    .search-box button {
+      background: #0f3d3e; color: #fff; border: none; padding: .6rem 1.2rem;
+      border-radius: 8px; font-weight: 600; cursor: pointer;
+    }
+    .search-box button:hover { background: #1a4a4b; }
+    
+    .empty { text-align: center; padding: 2rem; color: #94a3b8; font-size: .9rem; }
+    .loading { text-align: center; padding: 2rem; color: #00d4d4; }
+    
+    .alerta-fraude {
+      background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.3);
+      border-radius: 8px; padding: 1rem; margin-bottom: 1rem;
+    }
+    .alerta-fraude h3 { color: #dc2626; font-size: .9rem; margin-bottom: .5rem; }
+    .alerta-fraude p { color: #64748b; font-size: .85rem; }
+    
+    .nivel-riesgo { display: inline-block; padding: .15rem .5rem; border-radius: 12px; font-size: .7rem; font-weight: 700; }
+    .riesgo-ALTO { background: #dc2626; color: #fff; }
+    .riesgo-MEDIO { background: #f59e0b; color: #fff; }
+    .riesgo-BAJO { background: #00d4d4; color: #0f3d3e; }
+    .riesgo-MINIMO { background: #a3e635; color: #0f3d3e; }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="logo">GIV Admin</div>
+  <a href="#" class="active" onclick="mostrarTab('resumen')">📊 Resumen</a>
+  <a href="#" onclick="mostrarTab('fraude')">🚨 Fraude</a>
+  <a href="#" onclick="mostrarTab('placa')">🔍 Buscar Placa</a>
+  <a href="#" onclick="mostrarTab('actividad')">📋 Actividad</a>
+  <a href="/" style="margin-top:2rem;opacity:.5;">← Volver al sitio</a>
+</div>
+
+<div class="main">
+  <div class="header">
+    <h1>Panel de Control</h1>
+    <button onclick="cargarDatos()" style="background:rgba(0,212,212,0.15);color:#00d4d4;border:2px solid #00d4d4;padding:.5rem 1rem;border-radius:8px;cursor:pointer;font-weight:600;">↻ Refrescar</button>
+  </div>
+  
+  <div id="contenido">
+    <div class="loading">Cargando datos...</div>
+  </div>
+</div>
+
+<script>
+  let datosGlobales = null;
+  
+  async function cargarDatos() {
+    document.getElementById('contenido').innerHTML = '<div class="loading">Cargando...</div>';
+    try {
+      const resp = await fetch('/api/admin/resumen');
+      const data = await resp.json();
+      datosGlobales = data;
+      renderResumen(data);
+    } catch (e) {
+      document.getElementById('contenido').innerHTML = '<div class="empty">Error: ' + e.message + '</div>';
+    }
+  }
+  
+  function renderResumen(data) {
+    const g = data.general;
+    const f = data.fraude;
+    let html = '';
+    
+    // Cards principales
+    html += '<div class="cards">';
+    html += '<div class="card cyan"><div class="label">Total Consultas</div><div class="valor">' + g.total_consultas + '</div><div class="sub">Acumulado historico</div></div>';
+    html += '<div class="card green"><div class="label">Consultas Hoy</div><div class="valor">' + g.consultas_hoy + '</div><div class="sub">Ultimas 24h</div></div>';
+    html += '<div class="card"><div class="label">Ultimos 7 dias</div><div class="valor">' + g.consultas_7d + '</div><div class="sub">Tendencia semanal</div></div>';
+    html += '<div class="card cyan"><div class="label">Cotizacion 7d</div><div class="valor">$' + g.cotizacion_total_7d.toFixed(0) + '</div><div class="sub">MXN en servicio GIV</div></div>';
+    if (data.general.con_adeudos > 0) {
+      html += '<div class="card alert"><div class="label">Con Adeudos</div><div class="valor">' + g.con_adeudos + '</div><div class="sub">Vehiculos detectados</div></div>';
+    }
+    html += '</div>';
+    
+    // Alerta fraude
+    if (f.placas_suspiciosas.length > 0) {
+      html += '<div class="alerta-fraude"><h3>🚨 ' + f.alertas + '</h3>';
+      html += '<table><tr><th>Placa</th><th>Consultas</th><th>Riesgo</th><th>Accion</th></tr>';
+      f.placas_suspiciosas.forEach(p => {
+        const riesgo = p.consultas >= 10 ? 'ALTO' : p.consultas >= 5 ? 'MEDIO' : 'BAJO';
+        html += '<tr><td><strong>' + p.placa + '</strong></td><td>' + p.consultas + '</td>';
+        html += '<td><span class="nivel-riesgo riesgo-' + riesgo + '">' + riesgo + '</span></td>';
+        html += '<td><button onclick="verPlaca(\\'' + p.placa + '\\')" style="background:none;border:none;color:#00d4d4;cursor:pointer;font-weight:600;">Ver →</button></td></tr>';
+      });
+      html += '</table></div>';
+    }
+    
+    // Actividad reciente
+    html += '<div class="section"><h2>Actividad Reciente</h2>';
+    html += '<table><tr><th>Folio</th><th>Placa</th><th>Fecha</th><th>Verificable</th><th>Servicio</th></tr>';
+    data.actividad_reciente.forEach(a => {
+      html += '<tr><td>' + a.folio + '</td><td><strong>' + a.placa + '</strong></td>';
+      html += '<td>' + new Date(a.fecha).toLocaleString('es-MX', {dateStyle:'short', timeStyle:'short'}) + '</td>';
+      html += '<td>' + (a.verificable ? '<span class="badge verde">SI</span>' : '<span class="badge rojo">NO</span>') + '</td>';
+      html += '<td>' + (a.servicio_giv > 0 ? '<span class="badge cyan">$' + a.servicio_giv + '</span>' : '<span class="badge amarillo">Gratis</span>') + '</td></tr>';
+    });
+    html += '</table></div>';
+    
+    // Busqueda de placa
+    html += '<div class="section"><h2>🔍 Investigar Placa</h2>';
+    html += '<div class="search-box"><input type="text" id="placaInput" placeholder="Ingresa placa..." maxlength="10" onkeydown="if(event.key==\'Enter\')verPlacaInput()"><button onclick="verPlacaInput()">Buscar</button></div>';
+    html += '<div id="resultadoPlaca"></div></div>';
+    
+    document.getElementById('contenido').innerHTML = html;
+  }
+  
+  async function verPlaca(placa) {
+    const resultado = document.getElementById('resultadoPlaca');
+    resultado.innerHTML = '<div class="loading">Buscando...</div>';
+    try {
+      const resp = await fetch('/api/admin/placa/' + encodeURIComponent(placa));
+      const data = await resp.json();
+      let html = '<h3 style="margin-bottom:.5rem;">' + data.placa + ' <span class="nivel-riesgo riesgo-' + data.riesgo + '">' + data.riesgo + '</span></h3>';
+      html += '<p style="color:#64748b;font-size:.85rem;margin-bottom:1rem;">' + data.total_consultas + ' consulta(s) encontradas</p>';
+      if (data.historial.length > 0) {
+        html += '<table><tr><th>Folio</th><th>Fecha</th><th>REPUVE</th><th>Adeudos</th><th>Verificable</th></tr>';
+        data.historial.forEach(h => {
+          html += '<tr><td>' + h.folio + '</td><td>' + new Date(h.fecha).toLocaleString('es-MX', {dateStyle:'short', timeStyle:'short'}) + '</td>';
+          html += '<td><span class="badge ' + (h.repuve === 'SIN REPORTE' ? 'verde' : 'rojo') + '">' + h.repuve + '</span></td>';
+          html += '<td>' + (h.adeudos > 0 ? '$' + h.adeudos : '-') + '</td>';
+          html += '<td>' + (h.verificable ? '<span class="badge verde">SI</span>' : '<span class="badge rojo">NO</span>') + '</td></tr>';
+        });
+        html += '</table>';
+      }
+      resultado.innerHTML = html;
+    } catch (e) {
+      resultado.innerHTML = '<div class="empty">Error: ' + e.message + '</div>';
+    }
+  }
+  
+  function verPlacaInput() {
+    const placa = document.getElementById('placaInput').value.trim();
+    if (placa) verPlaca(placa);
+  }
+  
+  function mostrarTab(tab) {
+    document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+    event.target.classList.add('active');
+    if (datosGlobales) {
+      if (tab === 'resumen') renderResumen(datosGlobales);
+      else cargarDatos(); // Simplificado
+    }
+  }
+  
+  // Cargar al abrir
+  cargarDatos();
+</script>
+
+</body>
+</html>
