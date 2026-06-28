@@ -718,11 +718,14 @@ app.get('/api/health', (req, res) => {
 });
 
 // ============================================
-// INICIAR SERVIDOR
+// INICIAR SERVIDOR (local) / EXPORTAR (Vercel)
 // ============================================
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`
+
+if (!process.env.VERCEL) {
+  // Solo escuchar si NO estamos en Vercel (serverless)
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`
   ╔═══════════════════════════════════════╗
   ║   GIV — Gestion Integral Vehicular   ║
   ║   Puerto: ${PORT}                         ║
@@ -738,7 +741,8 @@ app.listen(PORT, '0.0.0.0', () => {
   ║   GET  /api/admin/placa/:placa         ║
   ╚═══════════════════════════════════════╝
   `);
-});
+  });
+}
 
 // ============================================
 // CHATBOT — Asistente virtual GIV
