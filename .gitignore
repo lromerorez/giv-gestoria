@@ -7,3 +7,5 @@ repuve_test.html
 test_*.png
 test_*.svg
 data/consultas.json
+.vercel
+.env*
