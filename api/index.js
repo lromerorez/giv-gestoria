@@ -224,33 +224,50 @@ function extraerDatosRepuve(html) {
   else if (html.includes('REPORTE DE ROBO')) datos.estatusRobo = 'CON REPORTE DE ROBO';
   else datos.estatusRobo = 'NO VERIFICABLE';
 
-  function extraer(etiquetas) {
-    for (const etiqueta of etiquetas) {
-      const regex1 = new RegExp(etiqueta + '[^<]*</td>\\s*<td[^>]*>([^<]+)', 'i');
-      const m1 = html.match(regex1);
-      if (m1) return m1[1].trim();
-      const regex2 = new RegExp(etiqueta + '[:\\s]+([A-Za-z0-9\\s\\-\\.\\/\\(\\)#,]+)', 'i');
-      const m2 = html.match(regex2);
-      if (m2 && m2[1].trim().length > 1) return m2[1].trim();
+  // Extraer todos los pares <tr><td>ETIQUETA:</td><td>VALOR</td></tr> del HTML
+  const regex = /<tr><td>([^<]+):<\/td>\s*<td>([^<]+)<\/td><\/tr>/gi;
+  let match;
+  const todosLosCampos = {};
+  while ((match = regex.exec(html)) !== null) {
+    todosLosCampos[match[1].trim()] = match[2].trim();
+  }
+
+  // Mapear nombres del HTML (español con acentos) a keys estandar
+  const mapeo = {
+    'marca': ['Marca'],
+    'modelo': ['Modelo'],
+    'anio': ['Año Modelo', 'ANO MODELO'],
+    'clase': ['Clase'],
+    'tipo': ['Tipo'],
+    'niv': ['Número de Identificación Vehicular (NIV)', 'Numero de Identificacion Vehicular (NIV)'],
+    'nci': ['Número de Constancia de Inscripción (NCI)', 'Numero de Constancia de Inscripcion (NCI)'],
+    'placa': ['Placa', 'Placas'],
+    'puertas': ['Número de puertas', 'Numero de puertas'],
+    'pais_origen': ['País de origen', 'Pais de origen'],
+    'version': ['Versión', 'Version'],
+    'desplazamiento': ['Desplazamiento (cc/L)'],
+    'cilindros': ['Número de cilindros', 'Numero de cilindros'],
+    'planta_ensamble': ['Planta de ensamble'],
+    'raw_complementarios': ['Datos complementarios'],
+    'institucion': ['Institución que lo inscribió', 'Institucion que lo inscribio'],
+    'fecha_inscripcion': ['Fecha de inscripción', 'Fecha de inscripcion'],
+    'entidad': ['Entidad que emplacó', 'Entidad que emplaco'],
+    'fecha_emplacado': ['Fecha de emplacado'],
+    'fecha_actualizacion': ['Fecha de última actualización', 'Fecha de ultima actualizacion'],
+    'folio_constancia': ['Folio de Constancia de Inscripción', 'Folio de Constancia de Inscripcion'],
+    'observaciones': ['Observaciones']
+  };
+
+  for (const [key, posibles] of Object.entries(mapeo)) {
+    for (const pos of posibles) {
+      if (todosLosCampos[pos]) {
+        datos[key] = todosLosCampos[pos];
+        break;
+      }
     }
-    return null;
   }
 
-  const campos = [
-    ['marca', ['Marca']], ['modelo', ['Modelo']], ['anio', ['Año Modelo', 'ANO MODELO']],
-    ['niv', ['NIV', 'Numero de Identificacion Vehicular']], ['clase', ['Clase']],
-    ['tipo', ['Tipo']], ['placa', ['Placa']], ['entidad', ['Entidad que emplaco', 'Entidad']],
-    ['puertas', ['Numero de puertas']], ['pais_origen', ['Pais de origen']],
-    ['version', ['Version']], ['cilindros', ['Numero de cilindros']],
-    ['planta_ensamble', ['Planta de ensamble']], ['institucion', ['Institucion que lo inscribio']],
-    ['fecha_inscripcion', ['Fecha de inscripcion']], ['fecha_emplacado', ['Fecha de emplacado']],
-    ['folio_constancia', ['Folio de Constancia']], ['observaciones', ['Observaciones']]
-  ];
-
-  for (const [key, etiquetas] of campos) {
-    const val = extraer(etiquetas);
-    if (val) datos[key] = val;
-  }
+  Object.keys(datos).forEach(k => { if (!datos[k]) delete datos[k]; });
 
   return Object.keys(datos).length > 1 ? datos : { estatusRobo: datos.estatusRobo };
 }

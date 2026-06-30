@@ -398,8 +398,7 @@ async function consultarRepuve(placa) {
 
 function extraerDatosRepuve(html) {
   const datos = {};
-  const txt = html.toUpperCase();
-  
+
   // Estatus de robo (prioritario)
   if (html.includes('SIN REPORTE DE ROBO') || html.includes('Sin reporte de robo')) {
     datos.estatusRobo = 'SIN REPORTE';
@@ -411,50 +410,52 @@ function extraerDatosRepuve(html) {
     datos.estatusRobo = 'NO VERIFICABLE';
   }
 
-  // Funcion helper para extraer etiqueta:valor de tabla HTML
-  function extraer(etiquetas) {
-    for (const etiqueta of etiquetas) {
-      // Patron  VALOR
-      const regex1 = new RegExp(etiqueta + '[^<]*<\\/td>\\s*<td[^>]*>([^<]+)', 'i');
-      const m1 = html.match(regex1);
-      if (m1) return m1[1].trim();
-      
-      // Patron etiqueta: valor (texto plano)
-      const sep = '[:\\s]+';
-      const regex2 = new RegExp(etiqueta + sep + '([A-Za-z0-9\\s\\-\\./\\(\\)#,]+)', 'i');
-      const m2 = html.match(regex2);
-      if (m2 && m2[1].trim().length > 1) return m2[1].trim();
-    }
-    return null;
+  // Extraer todos los pares <tr><td>ETIQUETA:</td><td>VALOR</td></tr> del HTML
+  const regex = /<tr><td>([^<]+):<\/td>\s*<td>([^<]+)<\/td><\/tr>/gi;
+  let match;
+  const todosLosCampos = {};
+  while ((match = regex.exec(html)) !== null) {
+    todosLosCampos[match[1].trim()] = match[2].trim();
   }
-  
-  // Campos basados en la estructura REAL del HTML que nos pasaste
-  datos.marca = extraer(['Marca']);
-  datos.modelo = extraer(['Modelo', 'VERSION']);
-  datos.anio = extraer(['Año Modelo', 'ANO MODELO', 'ANO']) || extraer(['AÑO MODELO']);
-  datos.niv = extraer(['NIV', 'Numero de Identificacion Vehicular \\(NIV\\)', 'NUMERO DE IDENTIFICACION VEHICULAR']);
-  datos.clase = extraer(['Clase']);
-  datos.tipo = extraer(['Tipo']);
-  datos.placa = extraer(['Placa', 'PLACAS']);
-  datos.entidad = extraer(['Entidad que emplaco', 'ENTIDAD QUE EMPLACO', 'Entidad']);
-  datos.puertas = extraer(['Numero de puertas', 'Numero de Puertias', 'PUERTAS']);
-  datos.pais_origen = extraer(['Pais de origen', 'PAIS DE ORIGEN']);
-  datos.version = extraer(['Version', 'VERSION S']);
-  datos.cilindros = extraer(['Numero de cilindros', 'NUMERO DE CILINDROS', 'CILINDROS']) || extraer(['Desplazamiento \\(cc\\/L\\) ']);
-  datos.planta_ensamble = extraer(['Planta de ensamble', 'PLANTA DE ENSAMBLE']);
-  datos.institucion = extraer(['Institucion que lo inscribio', 'INSTITUCION QUE LO INSCRIBIO', 'Institucion']);
-  datos.fecha_inscripcion = extraer(['Fecha de inscripcion', 'FECHA DE INSCRIPCION']);
-  datos.fecha_emplacado = extraer(['Fecha de emplacado', 'FECHA DE EMPLACADO']);
-  datos.fecha_actualizacion = extraer(['Fecha de ultima actualizacion', 'FECHA DE ULTIMA ACTUALIZACION']);
-  datos.folio_constancia = extraer(['Folio de Constancia de Inscripcion', 'FOLIO DE CONSTANCIA DE INSCRIPCION']);
-  datos.nci = extraer(['Numero de Constancia de Inscripcion \\(NCI\\)', 'NCI']);
-  datos.observaciones = extraer(['Observaciones']);
-  datos.desplazamiento = extraer(['Desplazamiento \\(cc\\/L\\) ']);
-  datos.raw_complementarios = extraer(['Datos complementarios', 'DATOS COMPLEMENTARIOS']);
+
+  // Mapear nombres del HTML (español con acentos) a keys estandar
+  const mapeo = {
+    'marca': ['Marca'],
+    'modelo': ['Modelo'],
+    'anio': ['Año Modelo', 'ANO MODELO'],
+    'clase': ['Clase'],
+    'tipo': ['Tipo'],
+    'niv': ['Número de Identificación Vehicular (NIV)', 'Numero de Identificacion Vehicular (NIV)'],
+    'nci': ['Número de Constancia de Inscripción (NCI)', 'Numero de Constancia de Inscripcion (NCI)'],
+    'placa': ['Placa', 'Placas'],
+    'puertas': ['Número de puertas', 'Numero de puertas'],
+    'pais_origen': ['País de origen', 'Pais de origen'],
+    'version': ['Versión', 'Version'],
+    'desplazamiento': ['Desplazamiento (cc/L)'],
+    'cilindros': ['Número de cilindros', 'Numero de cilindros'],
+    'planta_ensamble': ['Planta de ensamble'],
+    'raw_complementarios': ['Datos complementarios'],
+    'institucion': ['Institución que lo inscribió', 'Institucion que lo inscribio'],
+    'fecha_inscripcion': ['Fecha de inscripción', 'Fecha de inscripcion'],
+    'entidad': ['Entidad que emplacó', 'Entidad que emplaco'],
+    'fecha_emplacado': ['Fecha de emplacado'],
+    'fecha_actualizacion': ['Fecha de última actualización', 'Fecha de ultima actualizacion'],
+    'folio_constancia': ['Folio de Constancia de Inscripción', 'Folio de Constancia de Inscripcion'],
+    'observaciones': ['Observaciones']
+  };
+
+  for (const [key, posibles] of Object.entries(mapeo)) {
+    for (const pos of posibles) {
+      if (todosLosCampos[pos]) {
+        datos[key] = todosLosCampos[pos];
+        break;
+      }
+    }
+  }
 
   // Limpiar nulls
-  Object.keys(datos).forEach(k => { if (datos[k] === null || datos[k] === undefined) delete datos[k]; });
-  
+  Object.keys(datos).forEach(k => { if (!datos[k]) delete datos[k]; });
+
   return Object.keys(datos).length > 1 ? datos : { estatusRobo: datos.estatusRobo };
 }
 
