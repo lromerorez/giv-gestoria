@@ -570,37 +570,69 @@ function parsearAdeudos(html) {
 
 // Consulta completa (REPUVE + Adeudos + Cotizacion + Guardado en DB)
 app.post('/api/verificacion-completa', async (req, res) => {
-  const { placa } = req.body;
-  
+  const { placa, whatsapp = null } = req.body;
+
   if (!placa || placa.length < 3) {
     return res.status(400).json({ error: 'Placa invalida' });
   }
-  
+
   console.log(`[CONSULTA] Placa: ${placa}`);
-  
-  const [repuve, adeudos] = await Promise.all([
-    consultarRepuve(placa).catch(e => ({ placa: placa, fuente: 'REPUVE', error: e.message || 'Error desconocido', estatusRobo: 'ERROR' })),
-    consultarAdeudosCDMX(placa).catch(e => ({ placa: placa, fuente: 'Finanzas CDMX', error: e.message || 'Error desconocido', tieneAdeudos: false, totalAdeudos: 0, adeudos: null }))
-  ]);
-  
-  // Calcular cotizacion
-  const cotizacion = cotizarServicio(repuve, adeudos);
-  
-  const resultado = {
-    success: true,
-    placa: placa.toUpperCase().replace(/[^A-Z0-9]/g, ''),
-    repuve: repuve,
-    adeudos: adeudos,
-    cotizacion: cotizacion,
-    timestamp: new Date().toISOString()
-  };
-  
-  // Guardar en base de datos local
-  const registro = guardarConsulta(resultado);
-  resultado.folio = registro.folio;
-  resultado.registro = registro;
-  
-  res.json(resultado);
+
+  const placaLimpia = placa.toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+  // Intentar consultar REPUVE directamente
+  const repuveResult = await consultarRepuve(placaLimpia).catch(e => null);
+
+  if (repuveResult && repuveResult.datos && Object.keys(repuveResult.datos).length > 1) {
+    // REPUVE respondió bien — mostrar resultados inmediatos
+    const adeudos = await consultarAdeudosCDMX(placaLimpia).catch(e => ({ placa: placaLimpia, fuente: 'Finanzas CDMX', error: e.message, tieneAdeudos: false, totalAdeudos: 0, adeudos: null }));
+    const cotizacion = cotizarServicio(repuveResult, adeudos);
+
+    const resultado = {
+      success: true,
+      placa: placaLimpia,
+      repuve: repuveResult,
+      adeudos: adeudos,
+      cotizacion: cotizacion,
+      fuente: 'directo',
+      timestamp: new Date().toISOString()
+    };
+
+    const registro = guardarConsulta(resultado);
+    resultado.folio = registro.folio;
+    resultado.registro = registro;
+
+    res.json(resultado);
+  } else {
+    // REPUVE bloqueado — guardar como pendiente para Macrodroid
+    const db = leerDB();
+    const folio = 'GIV-' + new Date().toISOString().slice(0, 7).replace(/-/g, '') + '-' + String(db.consultas.length + 1).padStart(5, '0');
+
+    const consulta = {
+      folio,
+      placa: placaLimpia,
+      whatsapp,
+      estatus: 'pendiente',
+      creado: new Date().toISOString(),
+      prioridad: 1
+    };
+
+    db.consultas.push(consulta);
+    guardarDB(db);
+
+    res.json({
+      success: true,
+      placa: placaLimpia,
+      estatus: 'pendiente',
+      folio,
+      mensaje: 'Consulta registrada. Te notificaremos por WhatsApp cuando esten listos los datos.',
+      repuve: { estatusRobo: 'PENDIENTE', datos: null },
+      adeudos: { tieneAdeudos: false, totalAdeudos: 0 },
+      cotizacion: { verificable: true, repuve_bloqueado: true, cotizacion_servicio: { disponible: true, desglose: { servicio_verificacion: 700, adeudos_a_pagar: 0, total: 700 }, resumen: 'Verificacion a domicilio: $700.00 MXN', nota: 'Te contactaremos en breve con tus datos REPUVE completos.' } },
+      fuente: 'pendiente',
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // Listar todas las consultas (para panel administrativo)
@@ -712,6 +744,105 @@ function cotizarServicio(repuve, adeudos) {
     }
   };
 }
+
+// ============================================
+// MACRODROID — Sistema de consulta asíncrona
+// ============================================
+
+// Guardar consulta pendiente (cuando REPUVE no está disponible en el servidor)
+app.post('/api/consulta-pendiente', (req, res) => {
+  const { placa, whatsapp = null } = req.body;
+  if (!placa || placa.length < 3) {
+    return res.status(400).json({ error: 'Placa invalida' });
+  }
+
+  const db = leerDB();
+  const folio = 'GIV-' + new Date().toISOString().slice(0, 7).replace(/-/g, '') + '-' + String(db.consultas.length + 1).padStart(5, '0');
+
+  const consulta = {
+    folio,
+    placa: placa.toUpperCase().replace(/[^A-Z0-9]/g, ''),
+    whatsapp,
+    estatus: 'pendiente',
+    creado: new Date().toISOString(),
+    prioridad: 1
+  };
+
+  db.consultas.push(consulta);
+  guardarDB(db);
+
+  res.json({ success: true, folio, mensaje: 'Consulta registrada. Se procesara en breve.' });
+});
+
+// Macrodroid consulta qué placas pendientes hay
+app.get('/api/macro/pendientes', (req, res) => {
+  const db = leerDB();
+  const pendientes = db.consultas
+    .filter(c => c.estatus === 'pendiente')
+    .sort((a, b) => new Date(a.creado) - new Date(b.creado))
+    .slice(0, 10);
+  res.json({ pendientes });
+});
+
+// Macrodroid envía el resultado del HTML de REPUVE
+app.post('/api/macro/resultado', (req, res) => {
+  const { placa, html, fuente = 'REPUVE' } = req.body;
+  if (!placa || !html) {
+    return res.status(400).json({ error: 'Faltan datos: placa y html' });
+  }
+
+  const placaLimpia = placa.toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+  // Detectar estatus de robo
+  let estatusRobo = 'NO VERIFICABLE';
+  if (html.includes('SIN REPORTE DE ROBO') || html.includes('Sin reporte de robo')) {
+    estatusRobo = 'SIN REPORTE';
+  } else if (html.includes('REPORTE DE ROBO') || html.includes('reporte de robo')) {
+    estatusRobo = 'CON REPORTE DE ROBO';
+  }
+
+  // Parsear datos del HTML
+  const datos = extraerDatosRepuve(html);
+
+  const resultado = {
+    placa: placaLimpia,
+    fuente,
+    estatusRobo,
+    datos,
+    raw: html.substring(0, 2000),
+    fechaConsulta: new Date().toISOString()
+  };
+
+  // Actualizar en la base de datos
+  const db = leerDB();
+  const idx = db.consultas.findIndex(c => c.placa === placaLimpia && c.estatus === 'pendiente');
+  if (idx >= 0) {
+    db.consultas[idx].estatus = 'completado';
+    db.consultas[idx].repuve = resultado;
+    db.consultas[idx].completado = new Date().toISOString();
+    guardarDB(db);
+  }
+
+  res.json({ success: true, camposExtraidos: Object.keys(datos).length });
+});
+
+// Consultar estado de una consulta por folio
+app.get('/api/consulta-estado/:folio', (req, res) => {
+  const db = leerDB();
+  // Buscar la consulta más reciente con ese folio (la que tiene estatus)
+  const consultas = db.consultas.filter(c => c.folio === req.params.folio);
+  const consulta = consultas.sort((a, b) => (b.creado || '').localeCompare(a.creado || ''))[0];
+  if (!consulta) {
+    return res.status(404).json({ error: 'Folio no encontrado' });
+  }
+  res.json({
+    folio: consulta.folio,
+    placa: consulta.placa,
+    estatus: consulta.estatus || 'desconocido',
+    creado: consulta.creado,
+    repuve: consulta.repuve || null
+  });
+});
 
 // Health check
 app.get('/api/health', (req, res) => {

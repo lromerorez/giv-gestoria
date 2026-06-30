@@ -788,7 +788,12 @@
       
       const data = await resp.json();
       mostrarResultados(data);
-      
+
+      // Si la consulta está pendiente, hacer polling cada 10 segundos
+      if (data.estatus === 'pendiente' && data.folio) {
+        iniciarPolling(data.folio);
+      }
+
     } catch (error) {
       console.error('ERROR:', error);
       if (error.name === 'AbortError') {
@@ -801,7 +806,47 @@
       searchBtn.disabled = false;
     }
   });
-  
+
+  // Polling para consultas pendientes (procesadas por Macrodroid)
+  let pollingActivo = false;
+
+  function iniciarPolling(folio) {
+    if (pollingActivo) return;
+    pollingActivo = true;
+
+    let intentos = 0;
+    const maxIntentos = 36;
+
+    const intervalo = setInterval(async () => {
+      intentos++;
+      if (intentos > maxIntentos) {
+        clearInterval(intervalo);
+        pollingActivo = false;
+        return;
+      }
+
+      try {
+        const resp = await fetch('/api/consulta-estado/' + folio);
+        const data = await resp.json();
+
+        if (data.estatus === 'completado' && data.repuve && data.repuve.datos) {
+          clearInterval(intervalo);
+          pollingActivo = false;
+          mostrarResultados({
+            success: true,
+            placa: data.placa,
+            repuve: data.repuve,
+            adeudos: { tieneAdeudos: false, totalAdeudos: 0 },
+            cotizacion: { verificable: true, repuve_bloqueado: false, cotizacion_servicio: { disponible: true, desglose: { servicio_verificacion: 700, adeudos_a_pagar: 0, total: 700 }, resumen: 'Verificacion a domicilio: $700.00 MXN' } },
+            fuente: 'macro'
+          });
+        }
+      } catch (e) {
+        console.error('Polling error:', e);
+      }
+    }, 10000);
+  }
+
   function mostrarResultados(data) {
     let html = '';
 
@@ -813,16 +858,30 @@
     // REPUVE
     const repuve = data.repuve;
     const roboStatus = repuve.estatusRobo;
+    const esPendiente = (roboStatus === 'PENDIENTE' || data.estatus === 'pendiente');
     const roboClass = roboStatus === 'SIN REPORTE' ? 'clean' : 
-      (roboStatus === 'CON REPORTE DE ROBO' ? 'alert' : (roboStatus === 'SERVICIO_DISPONIBLE' ? 'info' : 'warning'));
-    const sinDatosRepuve = (roboStatus === 'SERVICIO_DISPONIBLE' || !repuve.datos);
+      (roboStatus === 'CON REPORTE DE ROBO' ? 'alert' : (roboStatus === 'SERVICIO_DISPONIBLE' ? 'info' : (esPendiente ? 'info' : 'warning')));
+    const sinDatosRepuve = (roboStatus === 'SERVICIO_DISPONIBLE' || roboStatus === 'PENDIENTE' || !repuve.datos);
     
     html += `<section class="result-section">
       <h2>🛡️ REPUVE - <span class="status-badge ${roboClass}">${roboStatus.replace(/_/g, ' ')}</span></h2>
     `;
-    
+
+    // Pendiente — Macrodroid está procesando
+    if (esPendiente) {
+      html += `<div style="padding:1.2rem;background:rgba(59,130,246,.08);border-radius:8px;border:1px solid rgba(59,130,246,.3);margin-top:.6rem;">`;
+      html += `<p style="color:#1d4ed8;font-weight:700;margin-bottom:.5rem;font-size:.9rem;">⏳ Consulta en proceso</p>`;
+      html += `<p style="color:var(--text-secondary);font-size:.85rem;line-height:1.5;">Estamos consultando REPUVE desde un dispositivo autorizado. Te notificaremos en breve con tus datos completos.</p>`;
+      if (data.folio) {
+        html += `<p style="margin-top:.6rem;font-size:.8rem;color:var(--text-muted);">Folio: <strong>${data.folio}</strong></p>`;
+      }
+      if (data.mensaje) {
+        html += `<p style="margin-top:.4rem;font-size:.85rem;color:var(--text-secondary);">${data.mensaje}</p>`;
+      }
+      html += `</div>`;
+    }
     // Si hay datos del vehiculo, mostrar TODOS
-    if (repuve.datos && roboStatus !== 'SERVICIO_DISPONIBLE' && roboStatus !== 'SERVICIO_NO_DISPONIBLE') {
+    else if (repuve.datos && roboStatus !== 'SERVICIO_DISPONIBLE' && roboStatus !== 'SERVICIO_NO_DISPONIBLE') {
       html += `<div class="data-grid">`;
       const campos = [
         ['marca', 'Marca'], ['modelo', 'Modelo'], ['anio', 'Año'], ['niv', 'NIV'],
